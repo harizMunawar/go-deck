@@ -7,7 +7,6 @@ const (
 	Diamond
 	Clover
 	Heart
-	Joker
 )
 
 type Rank uint8
@@ -27,6 +26,7 @@ const (
 	Jack
 	Queen
 	King
+	Joker
 )
 
 type Card struct {
@@ -35,8 +35,8 @@ type Card struct {
 }
 
 func (c Card) Stringify() string {
-	if c.Suit == Joker {
-		return c.Suit.String()
+	if c.Rank == Joker {
+		return c.Rank.String()
 	}
 
 	return c.Rank.String() + " Of " + c.Suit.String()
