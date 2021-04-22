@@ -1,12 +1,12 @@
 package main
 
 import (
-	"deck/deck"
+	"deck/card"
 	"fmt"
 )
 
 func ExampleCard() {
-	fmt.Println(deck.Card{Suit: deck.Spade, Rank: deck.King}.Stringify())
+	fmt.Println(card.Card{Suit: card.Spade, Rank: card.King}.Stringify())
 
 	// Output:
 	// King Of Spade

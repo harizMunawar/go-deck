@@ -1,12 +1,12 @@
 package main
 
 import (
-	"deck/deck"
+	"deck/card"
 	"fmt"
 )
 
 func main() {
 	fmt.Println("Hello World")
 
-	fmt.Println(deck.Card{Suit: deck.Heart, Rank: deck.Queen}.Stringify())
+	fmt.Println(card.Card{Suit: card.Heart, Rank: card.Queen}.Stringify())
 }

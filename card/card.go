@@ -1,4 +1,4 @@
-package deck
+package card
 
 type Suit uint8
 
