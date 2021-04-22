@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	deck := utils.CreateDeck(utils.Shuffle)
+	deck := utils.CreateDeck(utils.Joker, utils.Shuffle)
 
 	fmt.Println(deck)
 	fmt.Println("DOROW")

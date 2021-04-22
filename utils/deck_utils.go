@@ -50,6 +50,16 @@ func Draw(cards *[]card.Card) card.Card {
 	return drawedCard
 }
 
+func Joker(cards []card.Card) []card.Card {
+	for i := 0; i < 4; i++ {
+		cards = append(cards, card.Card{
+			Suit: card.Suit(i),
+			Rank: card.Joker,
+		})
+	}
+	return cards
+}
+
 func cardScore(c card.Card) int {
 	return int(c.Suit)*int(card.King) + int(c.Rank)
 }
