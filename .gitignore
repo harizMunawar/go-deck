@@ -13,4 +13,8 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
+
+# Database file
+db.sqlite3
+db.sqlite3-journal
