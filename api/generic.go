@@ -12,8 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const API_URL = "http://localhost:8000"
+
 func CreateDeck(c *gin.Context) {
 	deck := utils.CreateDeck()
+	q := c.Request.URL.Query()
+
+	if q.Get("shuffle") == "true" {
+		deck = utils.Shuffle(deck)
+	}
+
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	deckId := r.Intn(100000)
 
@@ -27,7 +35,11 @@ func CreateDeck(c *gin.Context) {
 	var cards = []database.Card{}
 	for index, element := range deck {
 		cards = append(cards, database.Card{
-			Deck:     deckDB,
+			Deck: database.Deck{
+				ID:         deckDB.ID,
+				CardTotal:  deckDB.CardTotal,
+				JokerTotal: deckDB.JokerTotal,
+			},
 			Suit:     int(element.Suit),
 			Rank:     int(element.Rank),
 			Position: int(index + 1),
@@ -113,7 +125,7 @@ func ShuffleDeck(c *gin.Context) {
 	defer cards.Close()
 
 	for cards.Next() {
-		if database.DB.ScanRows(cards, &cardPlaceholder) == nil {
+		if database.DB.ScanRows(cards, &cardPlaceholder) == nil && !cardPlaceholder.Drawed {
 			newDeck = append(newDeck, card.Card{
 				Suit: card.Suit(cardPlaceholder.Suit),
 				Rank: card.Rank(cardPlaceholder.Rank),
@@ -151,10 +163,10 @@ func DrawDeck(c *gin.Context) {
 		database.DB.Model(database.Card{}).Select("MIN(position) AS topDeck").Where("drawed = ?", false).Row().Scan(&minPos)
 		database.DB.Model(database.Card{}).Where("deck_id = ? AND position = ?", deck.ID, minPos).Update("drawed", true).Scan(&topDeck)
 
-		database.DB.Model(database.Deck{}).Select("card_total").Row().Scan(&deckTotal)
-		database.DB.Model(database.Deck{}).Where("id = ?", deck.ID).Update("card_total", deckTotal-1)
+		database.DB.Model(database.Card{}).Select("COUNT(id)").Where("deck_id = ? AND drawed = ?", id, false).Scan(&deckTotal)
+		database.DB.Model(database.Deck{}).Where("id = ?", deck.ID).Update("card_total", deckTotal)
 
-		c.JSON(http.StatusOK, gin.H{"topDeck": topDeck})
+		c.JSON(http.StatusOK, gin.H{"card": topDeck})
 		return
 	}
 	c.JSON(http.StatusBadRequest, gin.H{"message": "This deck is empty"})

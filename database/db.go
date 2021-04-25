@@ -22,6 +22,7 @@ func InitDB() {
 
 	db.AutoMigrate(&Card{})
 	db.AutoMigrate(&Deck{})
+	db.AutoMigrate(&BlackJack{})
 
 	DB = *db
 }
