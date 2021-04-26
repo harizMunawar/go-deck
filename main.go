@@ -20,7 +20,7 @@ func main() {
 }
 
 func urls(r *gin.Engine) {
-	r.GET("/create-deck", api.CreateDeck)
+	r.GET("/deck/create", api.CreateDeck)
 	r.GET("/deck/:id", api.GetDeck)
 	r.DELETE("/deck/:id", api.DeleteDeck)
 	r.GET("/deck/:id/shuffle", api.ShuffleDeck)

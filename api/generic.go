@@ -160,7 +160,7 @@ func DrawDeck(c *gin.Context) {
 	}
 
 	if database.DB.Model(database.Card{}).Select("COUNT(drawed)").Where("drawed = ?", false).Scan(&cardsLeft); cardsLeft > 0 {
-		database.DB.Model(database.Card{}).Select("MIN(position) AS topDeck").Where("drawed = ?", false).Row().Scan(&minPos)
+		database.DB.Model(database.Card{}).Select("MIN(position) AS topDeck").Where("deck_id = ? AND drawed = ?", id, false).Row().Scan(&minPos)
 		database.DB.Model(database.Card{}).Where("deck_id = ? AND position = ?", deck.ID, minPos).Update("drawed", true).Scan(&topDeck)
 
 		database.DB.Model(database.Card{}).Select("COUNT(id)").Where("deck_id = ? AND drawed = ?", id, false).Scan(&deckTotal)
