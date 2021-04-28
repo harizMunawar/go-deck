@@ -3,8 +3,6 @@ package database
 import (
 	"fmt"
 
-	// "encoding/json"
-
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -22,6 +20,7 @@ func InitDB() {
 
 	db.AutoMigrate(&Card{})
 	db.AutoMigrate(&Deck{})
+	db.AutoMigrate(&Blackjack{})
 
 	DB = *db
 }
