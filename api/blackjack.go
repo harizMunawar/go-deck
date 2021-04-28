@@ -96,8 +96,14 @@ func BlackjackHit(c *gin.Context) {
 	)
 
 	gameId, _ := strconv.Atoi(c.Param("gameid"))
-	get_data(&game, &deck, gameId, c)
+	query := database.DB.Model(database.Blackjack{}).Preload(clause.Associations).Where("id = ?", gameId).Scan(&game)
+	if query.Error != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"message": "Can't found blackjack game with that ID",
+		})
+	}
 
+	database.DB.Model(database.Deck{}).Where("id = ?", game.DeckID).Scan(&deck)
 	playerHand, _ := draw(deck, game.PlayerHand)
 	database.DB.Model(&game).Association("PlayerHand").Append(playerHand)
 
@@ -122,17 +128,17 @@ func DealerAI(c *gin.Context) {
 	gameId, _ := strconv.Atoi(c.Param("gameid"))
 	get_data(&game, &deck, gameId, c)
 
-	playerHand := game.PlayerHand
-	dealerHand := game.DealerHand
 	dealerScore, containAces := score_counter(game.DealerHand)
 
-	for dealerScore <= 16 || (dealerScore == 17 && containAces) {
-		if !forceFinished && (len(dealerHand) > len(playerHand)) {
-			break
-		}
-		dealerHand, _ = draw(deck, dealerHand)
-		dealerScore, containAces = score_counter(dealerHand)
-		database.DB.Model(&game).Association("DealerHand").Append(dealerHand)
+	for dealerScore <= 16 || (dealerScore <= 17 && containAces) {
+		dealerHand, _ := draw(deck, game.DealerHand)
+		database.DB.Model(&game).Association("DealerHand").Replace(dealerHand)
+		get_data(&game, &deck, gameId, c)
+		dealerScore, containAces = score_counter(game.DealerHand)
+	}
+
+	if forceFinished {
+		database.DB.Model(&game).Update("finished", true)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -220,7 +226,8 @@ func check_finished(playerScore int, dealerScore int, forceFinished bool) bool {
 }
 
 func get_data(game *database.Blackjack, deck *database.Deck, gameId int, c *gin.Context) {
-	if query := database.DB.Model(database.Blackjack{}).Where("id = ?", gameId).Scan(&game); query.Error != nil {
+	query := database.DB.Model(database.Blackjack{}).Preload(clause.Associations).Where("id = ?", gameId).Find(&game)
+	if query.Error != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"message": "Can't found blackjack game with that ID",
 		})

@@ -101,6 +101,7 @@ func DeleteDeck(c *gin.Context) {
 
 	database.DB.Delete(&deck, id)
 	database.DB.Delete(database.Card{}, "deck_id = ?", id)
+	database.DB.Delete(database.Blackjack{}, "deck_id = ?", id)
 
 	response := gin.H{
 		"message": "Deck deleted successfully",
